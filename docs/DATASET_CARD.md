@@ -6,7 +6,7 @@
 - **Source owner**: Board of Governors of the Federal Reserve System (H.15 Selected Interest Rates), distributed through FRED, Federal Reserve Bank of St. Louis
 - **Retrieval method and date**: CSV downloaded 2026-11-14 from
   `https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS3MO,DGS6MO,DGS1,DGS2,DGS3,DGS5,DGS7,DGS10`
-- **License or access agreemen**: U.S. government data, public domain.  No account or API key required.
+- **License or access agreement**: U.S. government data, public domain.  No account or API key required.
 - **Immutable version, checksum, or query**: the query URL above, plus the
   SHA-256 of the downloaded file: `87a53455bc7635512089d3f73007a42c041c643c29c0f02baf69e751d1e0e006`
   (16,923 rows, 1962-01-02 to 2026-11-12). FRED data updates daily, so a later download will differ; the checksum identifies this exact copy.

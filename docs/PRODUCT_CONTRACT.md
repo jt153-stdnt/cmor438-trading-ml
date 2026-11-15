@@ -63,7 +63,7 @@ One dataset: **daily U.S. Treasury constant-maturity yields** from FRED.
 | Linear regression | Regression | Yes | HAR-style linear model on past realized vol is the standard volatility baseline | Notebook 02 |
 | Logistic regression | Classification | Yes | Models log-odds of a high-vol month as linear in features; outputs probabilities | Notebook 03 |
 | Nearest neighbors | Regression, Classification | Yes | Similar past market states may precede similar volatility | Notebooks 02, 03 |
-| Support vector machines | Classification | Yes (classification only) | Max-margin linear separator for the binary label; the course SVM is a classifier, so it is not used for regression | Notebook 03 |
+| Support vector machines and kernels | Classification | Yes (linear, classification only) | Max-margin linear separator for the binary label; the course SVM is a classifier, so it is not used for regression. Kernel SVMs are not implemented: the course SVM is linear, and nonlinear effects are covered by trees, forests, and neural networks. | Notebook 03 |
 | Decision trees | Regression, Classification | Yes | Captures thresholds such as "vol is high only when the curve is inverted" | Notebooks 02, 03 |
 | Ensembles | Regression, Classification | Yes (random forest) | Averaging bootstrapped trees reduces single-tree variance | Notebooks 02, 03 |
 | Neural networks | Regression, Classification | Yes | Can learn nonlinear effects, e.g., vol behaving differently near the zero bound | Notebooks 02, 03 |
@@ -82,36 +82,31 @@ the next 21 days. PCA, feature scaling, and the 67th-percentile threshold are
 fit on training data only. 1981–1984 is excluded as an extreme high-rate
 regime unlike the rest of the sample.
 
-**Baselines:**
-- Regression: persistence (next-month vol = trailing 21-day vol) and HAR.
-- Classification: majority class.
+- **Baselines:**
+  - Regression: persistence (next-month vol = trailing 21-day vol) and HAR.
+  - Classification: majority class.
+- **Metrics:**
+  - Regression: RMSE and MAE in bp/year.
+  - Classification: balanced accuracy and log loss, plus a cost view in
+    which missing a high-vol month costs more than a false alarm.
+  - Unsupervised: PCA explained variance; k-means stability across random
+    seeds.
+- **Selection rule:** choose the model with the best validation metric that
+  beats its baseline. The final test set is opened once, after selection is
+  frozen.
+- **Primary metrics (used for selection):** RMSE for regression; log loss
+  for classification. Others are reported but do not decide selection.
+- **Uncertainty evidence:** block bootstrap over contiguous 63-day blocks
+  (rows overlap in their 21-day targets, so row-level resampling would
+  understate uncertainty). Report 90% intervals for each metric.
+- **Condition slices:** report metrics separately for low-rate periods
+  (3M yield < 1%), hiking cycles, and the top decile of volatility.
+- **Failure thresholds:** a candidate that does not beat persistence RMSE
+  on validation is not promoted. A classifier whose balanced accuracy is
+  below 0.55 on validation is not promoted.
+- **Cost view:** a missed high-vol month (false calm) is treated as 3×
+  as costly as a false alarm.
 
-**Metrics:**
-- Regression: RMSE and MAE in bp/year.
-- Classification: balanced accuracy and log loss, plus a cost view in which
-  missing a high-vol month costs more than a false alarm.
-- Unsupervised: PCA explained variance; k-means stability across random seeds.
-
-**Selection rule:** choose the model with the best validation metric that
-beats its baseline. The final test set is opened once, after selection is
-frozen.
-**Primary metrics (used for selection):** RMSE for regression; log loss
-for classification. Others are reported but do not decide selection.
-
-**Uncertainty evidence:** block bootstrap over contiguous 63-day blocks
-(rows overlap in their 21-day targets, so row-level resampling would
-understate uncertainty). Report 90% intervals for each metric.
-
-**Condition slices:** report metrics separately for low-rate periods
-(3M yield < 1%), hiking cycles, and the top decile of volatility, to show
-where models fail rather than only on average.
-
-**Failure thresholds:** a candidate that does not beat persistence RMSE
-on validation is not promoted. A classifier whose balanced accuracy is
-below 0.55 on validation is not promoted.
-
-**Cost view:** a missed high-vol month (false calm) is treated as 3×
-as costly as a false alarm.
 ## System interfaces
 
 - **Data boundary:** `data/local/treasury_yields.csv` (full, ignored by Git);
