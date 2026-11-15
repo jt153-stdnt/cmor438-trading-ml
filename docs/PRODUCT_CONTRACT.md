@@ -95,7 +95,23 @@ regime unlike the rest of the sample.
 **Selection rule:** choose the model with the best validation metric that
 beats its baseline. The final test set is opened once, after selection is
 frozen.
+**Primary metrics (used for selection):** RMSE for regression; log loss
+for classification. Others are reported but do not decide selection.
 
+**Uncertainty evidence:** block bootstrap over contiguous 63-day blocks
+(rows overlap in their 21-day targets, so row-level resampling would
+understate uncertainty). Report 90% intervals for each metric.
+
+**Condition slices:** report metrics separately for low-rate periods
+(3M yield < 1%), hiking cycles, and the top decile of volatility, to show
+where models fail rather than only on average.
+
+**Failure thresholds:** a candidate that does not beat persistence RMSE
+on validation is not promoted. A classifier whose balanced accuracy is
+below 0.55 on validation is not promoted.
+
+**Cost view:** a missed high-vol month (false calm) is treated as 3×
+as costly as a false alarm.
 ## System interfaces
 
 - **Data boundary:** `data/local/treasury_yields.csv` (full, ignored by Git);
@@ -106,7 +122,8 @@ frozen.
   regime, and model version.
 - **User interface:** a single page showing the above with historical context.
 - **Logs, metrics, alerts, rollback:** see `OPERATIONS.md`.
-
+- **Deployment environment:** Docker container built from the template's
+  `Dockerfile` / `compose.yaml`, serving the API locally.
 ## Responsible-use boundary
 
 - **Not trading advice.** This is a course project.
@@ -117,3 +134,9 @@ frozen.
 - **Human oversight.** A human makes every decision based on its output.
 - **What a good demo does not prove:** strong test-period results do not
   prove the model will hold in the next regime shift.
+- **Privacy and security:** no personal data; public market data only;
+  no credentials stored in the repo.
+- **Fairness:** the product makes no decisions about people, so
+  group-fairness metrics do not apply.
+- **Misuse:** using forecasts to size real positions without implied-vol
+  comparison and human judgment is out of scope and unsupported.
