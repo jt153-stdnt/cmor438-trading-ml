@@ -6,7 +6,7 @@ from dsm_project.config import ProjectConfig
 from dsm_project.contracts import DatasetAdapter, ProjectDataset
 from dsm_project.data.csv_adapter import CSVProjectAdapter
 from dsm_project.data.example import ExampleWineAdapter
-
+from dsm_project.data.treasury import TreasuryYieldAdapter
 
 def load_project_dataset(config: ProjectConfig) -> ProjectDataset:
     """Load the dataset selected by configuration.
@@ -18,6 +18,7 @@ def load_project_dataset(config: ProjectConfig) -> ProjectDataset:
     adapters: dict[str, DatasetAdapter] = {
         "example_wine": ExampleWineAdapter(),
         "csv": CSVProjectAdapter(),
+        "treasury": TreasuryYieldAdapter(),
     }
     adapter_name = str(config.dataset["adapter"])
     try:

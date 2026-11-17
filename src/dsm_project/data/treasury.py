@@ -26,6 +26,16 @@ YIELD_COLUMNS = (
     "DGS7",
     "DGS10",
 )
+REGRESSION_FEATURES = (
+    "rv_5d",
+    "rv_21d",
+    "rv_63d",
+    "slope_2s10s",
+    "slope_3m10y",
+    "DGS10",
+)
+CHANGE_COLUMNS = tuple(f"d_{column}" for column in YIELD_COLUMNS)
+
 START_DATE = "1985-01-01"
 FORWARD_HORIZON = 21
 TRADING_DAYS = 252  # for annualizing volatilities
@@ -110,5 +120,32 @@ class TreasuryYieldAdapter:
         yields = clean_yields(raw)
         validate_yields(yields)
         features = add_features(yields)
-        return features  # TEMPORARY: remove once the dataset is built
-        # TODO: validate, compute features, build and return the dataset
+        tasks = {
+            "regression": TaskDefinition(
+                name=str(config.tasks["regression"]["name"]),
+                kind=TaskKind.REGRESSION,
+                feature_columns=REGRESSION_FEATURES,
+                target_column=str(config.tasks["regression"]["target"]),
+                metric=str(config.tasks["regression"]["metric"]),
+            ),
+            "unsupervised": TaskDefinition(
+                name=str(config.tasks["unsupervised"]["name"]),
+                kind=TaskKind.UNSUPERVISED,
+                feature_columns=CHANGE_COLUMNS,
+                target_column=None,
+                metric=str(config.tasks["unsupervised"]["metric"]),
+            ),
+        }
+        dataset = ProjectDataset(
+            observations=features,
+            identifier="observation_date",
+            tasks=tasks,
+            provenance=DatasetProvenance(
+                name=str(config.dataset["name"]),
+                source=str(config.dataset["source"]),
+                license=str(config.dataset["license"]),
+                observation_unit=str(config.dataset["observation_unit"]),
+            ),
+        )
+        dataset.validate()
+        return dataset
