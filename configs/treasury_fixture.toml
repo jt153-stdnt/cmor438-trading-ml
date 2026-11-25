@@ -1,0 +1,34 @@
+# Same as treasury.toml, but reads the small committed fixture so CI can run.
+[project]
+name = "Treasury rate-volatility monitor"
+intended_user = "rates traders and risk managers on trading desks who need a quick read on U.S. Treasury rate volatility and curve regime"
+
+[dataset]
+adapter = "treasury"
+name = "U.S. Treasury constant-maturity yields, daily (CI fixture)"
+source = "Federal Reserve Board H.15 via FRED (St. Louis Fed), retrieved 2026-11-14"
+license = "U.S. government data, public domain"
+path = "data/fixtures/treasury_yields_sample.csv"
+observation_unit = "one U.S. bond-market trading day"
+identifier = "observation_date"
+feature_columns = []
+
+[tasks.regression]
+name = "forecast 10-year realized normal volatility over the next 21 trading days"
+target = "vol_fwd_21d"
+metric = "root_mean_squared_error"
+
+# [tasks.classification] is added in the splits PR: its high-volatility
+# threshold must be fit on training rows only, so the label can't exist yet.
+
+
+[tasks.unsupervised]
+name = "identify yield-curve factors (PCA) and curve regimes (k-means)"
+metric = "explained_variance_and_stability"
+
+# Placeholder required by config.py; replaced by date-based splits in the next PR.
+[split]
+random_state = 438
+test_fraction = 0.25
+# group_column = "subject_id"
+# time_column = "measurement_time"
