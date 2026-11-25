@@ -8,6 +8,7 @@ from dsm_project.data.csv_adapter import CSVProjectAdapter
 from dsm_project.data.example import ExampleWineAdapter
 from dsm_project.data.treasury import TreasuryYieldAdapter
 
+
 def load_project_dataset(config: ProjectConfig) -> ProjectDataset:
     """Load the dataset selected by configuration.
 
